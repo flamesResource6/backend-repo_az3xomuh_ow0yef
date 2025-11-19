@@ -11,10 +11,10 @@ Model name is converted to lowercase for the collection name:
 - BlogPost -> "blogs" collection
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from typing import Optional
 
-# Example schemas (replace with your own):
+# Example schemas (you can keep or remove if not needed):
 
 class User(BaseModel):
     """
@@ -22,8 +22,8 @@ class User(BaseModel):
     Collection name: "user" (lowercase of class name)
     """
     name: str = Field(..., description="Full name")
-    email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
+    email: EmailStr = Field(..., description="Email address")
+    address: Optional[str] = Field(None, description="Address")
     age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
     is_active: bool = Field(True, description="Whether user is active")
 
@@ -38,11 +38,19 @@ class Product(BaseModel):
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
+# Lead schema for capturing website enquiries
+class Lead(BaseModel):
+    """
+    Leads captured from the marketing site
+    Collection name: "lead"
+    """
+    name: str = Field(..., min_length=2, max_length=120)
+    email: EmailStr
+    company: Optional[str] = Field(None, max_length=160)
+    website: Optional[str] = Field(None, max_length=200)
+    budget: Optional[str] = Field(None, description="Budget range as text, e.g., '$5k-$10k'")
+    message: Optional[str] = Field(None, max_length=2000)
+    source: Optional[str] = Field("website", description="Acquisition source or campaign tag")
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+# Add your own schemas here if needed.
+# Note: The Flames database viewer can read these via /schema endpoint if implemented.
